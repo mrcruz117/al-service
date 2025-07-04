@@ -83,7 +83,7 @@ dev-restart:
 
 dev-update: build dev-load dev-restart
 
-dev-update-apply: build dev-load dev-ap ply
+dev-update-apply: build dev-load dev-apply
 
 dev-logs:
 	kubectl logs --namespace=$(NAMESPACE) -l app=$(SALES_APP) --all-containers=true -f --tail=100 --max-log-requests=6 | go run apis/tooling/logfmt/main.go -service=$(SALES_APP)
@@ -96,8 +96,17 @@ dev-describe-deployment:
 dev-describe-sales:
 	kubectl describe pod --namespace=$(NAMESPACE) -l app=$(SALES_APP‰)
 
+# ==============================================================================
+# Metrics and Tracing
+
+metrics:
+	expvarmon -ports="localhost:3010" -vars="build,requests,goroutines,errors,panics,mem:memstats.HeapAlloc,mem:memstats.HeapSys,mem:memstats.Sys"
+
+statsviz:
+	open -a "Google Chrome" http://localhost:3010/debug/statsviz
+
 # =========================================================
-# Modules supportÏ
+# Modules support
 
 tidy:
 	go mod tidy

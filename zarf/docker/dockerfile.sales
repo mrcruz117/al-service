@@ -13,10 +13,10 @@ ARG BUILD_REF
 # RUN go mod download
 
 # Copy the source code into the container.
-COPY . /service
+COPY . /al-service
 
 # Build the service binary.
-WORKDIR /service/api/services/sales
+WORKDIR /al-service/apis/services/sales
 RUN go build -ldflags "-X main.build=${BUILD_REF}"
 
 
@@ -25,9 +25,9 @@ FROM alpine:3.22
 ARG BUILD_DATE
 ARG BUILD_REF
 RUN addgroup -g 1000 -S sales && \
-  adduser -u 1000 -h /service -G sales -S sales
-COPY --from=build_sales --chown=sales:sales /service/api/services/sales/sales /service/sales
-WORKDIR /service
+  adduser -u 1000 -h /al-service -G sales -S sales
+COPY --from=build_sales --chown=sales:sales /al-service/apis/services/sales/sales /al-service/sales
+WORKDIR /al-service
 USER sales
 CMD ["./sales"]
 
