@@ -31,6 +31,12 @@ spec:
         - name: sales
           image: sales-image
 
+          ports:
+            - name: sales
+              containerPort: 3000
+            - name: sales-debug
+              containerPort: 3010
+
           env:
           # setting GOMAXPROCS to the number of cores available to the k8s pod.
             - name: GOMAXPROCS
@@ -38,11 +44,6 @@ spec:
                 resourceFieldRef:
                   resource: limits.cpu
 
-          # ports:
-          #   - name: sales
-          #     containerPort: 3000
-          #   - name: sales-debug
-          #     containerPort: 3010
 
           # readinessProbe: # readiness probes mark the service available to accept traffic.
           #   httpGet:
