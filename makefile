@@ -99,7 +99,7 @@ dev-describe-deployment:
 	kubectl describe deployment --namespace=$(NAMESPACE) $(SALES_APP)
 
 dev-describe-sales:
-	kubectl describe pod --namespace=$(NAMESPACE) -l app=$(SALES_APP‰)
+	kubectl describe pod --namespace=$(NAMESPACE) -l app=$(SALES_APP)
 
 # ==============================================================================
 # Metrics and Tracing

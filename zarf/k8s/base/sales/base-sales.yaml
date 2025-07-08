@@ -38,32 +38,31 @@ spec:
               containerPort: 3010
 
           env:
-          # setting GOMAXPROCS to the number of cores available to the k8s pod.
+            # setting GOMAXPROCS to the number of cores available to the k8s pod.
             - name: GOMAXPROCS
               valueFrom:
                 resourceFieldRef:
                   resource: limits.cpu
 
+          readinessProbe: # readiness probes mark the service available to accept traffic.
+            httpGet:
+              path: /readiness
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 2
 
-          # readinessProbe: # readiness probes mark the service available to accept traffic.
-          #   httpGet:
-          #     path: /readiness
-          #     port: 3000
-          #   initialDelaySeconds: 5
-          #   periodSeconds: 10
-          #   timeoutSeconds: 5
-          #   successThreshold: 1
-          #   failureThreshold: 2
-
-          # livenessProbe: # liveness probes mark the service alive or dead (to be restarted).
-          #   httpGet:
-          #     path: /liveness
-          #     port: 3000
-          #   initialDelaySeconds: 2
-          #   periodSeconds: 5
-          #   timeoutSeconds: 5
-          #   successThreshold: 1
-          #   failureThreshold: 2
+          livenessProbe: # liveness probes mark the service alive or dead (to be restarted).
+            httpGet:
+              path: /liveness
+              port: 3000
+            initialDelaySeconds: 2
+            periodSeconds: 5
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 2
 
           # env:
           #   - name: GOMAXPROCS
