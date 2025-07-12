@@ -5,8 +5,8 @@ package mux
 import (
 	"os"
 
+	"github.com/mrcruz117/al-service/apis/services/api/mid"
 	"github.com/mrcruz117/al-service/apis/services/sales/route/sys/checkapi"
-	"github.com/mrcruz117/al-service/app/api/mid"
 	"github.com/mrcruz117/al-service/foundation/logger"
 	"github.com/mrcruz117/al-service/foundation/web"
 )
