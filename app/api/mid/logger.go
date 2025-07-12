@@ -21,7 +21,7 @@ func Logger(ctx context.Context, log *logger.Logger, path string, rawQuery strin
 
 	err := handler(ctx)
 
-	log.Info(ctx, "request completed", "method", method, "path", path, "remoteaddr", remoteAddr, "statuecode", v.StatusCode, "since", time.Since(v.Now).String())
+	log.Info(ctx, "request completed", "method", method, "path", path, "remoteaddr", remoteAddr, "statuscode", v.StatusCode, "since", time.Since(v.Now).String())
 
 	return err
 }
