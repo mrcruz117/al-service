@@ -3,9 +3,10 @@ package web
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"net/http"
 	"os"
+	"syscall"
 	"time"
 
 	"github.com/google/uuid"
@@ -33,6 +34,12 @@ func NewApp(shutdown chan os.Signal, mw ...MidHandler) *App {
 	}
 }
 
+// SignalShutdown is used to gracefully shutdown the app when an integrity
+// issue is identified.
+func (a *App) SignalShutdown() {
+	a.shutdown <- syscall.SIGTERM
+}
+
 // HandleFunc sets a handler function for a given HTTP method and path pair
 // to the application server mux.
 func (a *App) HandleFunc(pattern string, handler Handler, mw ...MidHandler) {
@@ -48,12 +55,24 @@ func (a *App) HandleFunc(pattern string, handler Handler, mw ...MidHandler) {
 		ctx := setValues(r.Context(), &v)
 
 		if err := handler(ctx, w, r); err != nil {
-			// ERR HANDLING HERE
-			fmt.Println(err)
-			return
+			if validateError(err) {
+				a.SignalShutdown()
+				return
+			}
 		}
 
 	}
 
 	a.ServeMux.HandleFunc(pattern, h)
+}
+
+func validateError(err error) bool {
+	switch {
+	case errors.Is(err, syscall.EPIPE):
+		return false
+	case errors.Is(err, syscall.ECONNRESET):
+		return false
+	}
+
+	return true
 }
