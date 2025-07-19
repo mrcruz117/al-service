@@ -1,16 +1,21 @@
 package main
 
 import (
+	"bytes"
+	"context"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
+	_ "embed"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"log"
 	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/open-policy-agent/opa/rego"
 )
 
 func main() {
@@ -88,48 +93,51 @@ func GenToken() error {
 		return fmt.Errorf("encoding to public file: %w", err)
 	}
 
-	// var b bytes.Buffer
-	// if err := pem.Encode(&b, &publicBlock); err != nil {
-	// 	return fmt.Errorf("encoding to public file: %w", err)
-	// }
+	var b bytes.Buffer
+	if err := pem.Encode(&b, &publicBlock); err != nil {
+		return fmt.Errorf("encoding to public file: %w", err)
+	}
 
 	// -------------------------------------------------------------------------
 
-	// ctx := context.Background()
-	// query := fmt.Sprintf("x = data.%s.%s", "ardan.rego", "auth")
+	ctx := context.Background()
+	query := fmt.Sprintf("x = data.%s.%s", "service.rego", "auth")
 
-	// q, err := rego.New(
-	// 	rego.Query(query),
-	// 	rego.Module("policy.rego", opaAuthentication),
-	// ).PrepareForEval(ctx)
-	// if err != nil {
-	// 	return err
-	// }
+	q, err := rego.New(
+		rego.Query(query),
+		rego.Module("policy.rego", opaAuthentication),
+	).PrepareForEval(ctx)
+	if err != nil {
+		return err
+	}
 
-	// input := map[string]any{
-	// 	"Key":   b.String(),
-	// 	"Token": str,
-	// 	"ISS":   "service project",
-	// }
+	input := map[string]any{
+		"Key":   b.String(),
+		"Token": str,
+		"ISS":   "service project",
+	}
 
-	// results, err := q.Eval(ctx, rego.EvalInput(input))
-	// if err != nil {
-	// 	return fmt.Errorf("query: %w", err)
-	// }
+	results, err := q.Eval(ctx, rego.EvalInput(input))
+	if err != nil {
+		return fmt.Errorf("query: %w", err)
+	}
 
-	// if len(results) == 0 {
-	// 	return errors.New("no results")
-	// }
+	if len(results) == 0 {
+		return errors.New("no results")
+	}
 
-	// result, ok := results[0].Bindings["x"].(bool)
-	// if !ok || !result {
-	// 	return fmt.Errorf("bindings results[%v] ok[%v]", results, ok)
-	// }
+	result, ok := results[0].Bindings["x"].(bool)
+	if !ok || !result {
+		return fmt.Errorf("bindings results[%v] ok[%v]", results, ok)
+	}
 
-	// fmt.Println("\nTOKEN VALIDATED!")
+	fmt.Println("\nTOKEN VALIDATED!")
 
 	return nil
 }
+
+//go:embed rego/authentication.rego
+var opaAuthentication string
 
 // GenKey creates an x509 private/public key for auth tokens.
 func GenKey() error {
