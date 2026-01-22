@@ -5,6 +5,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/mrcruz117/al-service/app/api/errs"
 	"github.com/mrcruz117/al-service/app/api/mid"
 	"github.com/mrcruz117/al-service/business/api/auth"
@@ -42,4 +43,41 @@ func (api *api) token(ctx context.Context, w http.ResponseWriter, r *http.Reques
 	}
 
 	return web.Respond(ctx, w, token, http.StatusOK)
+}
+
+func (api *api) authenticate(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	// The middleware is actually handling the authentication. So if the code
+	// gets to this handler, authentication passed.
+
+	userID, err := mid.GetUserID(ctx)
+	if err != nil {
+		return errs.New(errs.Unauthenticated, err)
+	}
+
+	resp := struct {
+		UserID uuid.UUID
+		Claims auth.Claims
+	}{
+		UserID: userID,
+		Claims: mid.GetClaims(ctx),
+	}
+
+	return web.Respond(ctx, w, resp, http.StatusOK)
+}
+
+func (api *api) authorize(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	var auth struct {
+		Claims auth.Claims
+		UserID uuid.UUID
+		Rule   string
+	}
+	if err := web.Decode(r, &auth); err != nil {
+		return errs.New(errs.FailedPrecondition, err)
+	}
+
+	if err := api.auth.Authorize(ctx, auth.Claims, auth.UserID, auth.Rule); err != nil {
+		return errs.Newf(errs.Unauthenticated, "authorize: you are not authorized for that action, claims[%v] rule[%v]: %s", auth.Claims.Roles, auth.Rule, err)
+	}
+
+	return web.Respond(ctx, w, nil, http.StatusNoContent)
 }

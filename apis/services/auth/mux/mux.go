@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/mrcruz117/al-service/apis/services/api/mid"
+	"github.com/mrcruz117/al-service/apis/services/auth/route/authapi"
 	"github.com/mrcruz117/al-service/apis/services/auth/route/checkapi"
 	"github.com/mrcruz117/al-service/business/api/auth"
 	"github.com/mrcruz117/al-service/foundation/logger"
@@ -14,10 +15,11 @@ import (
 
 // WebAPIAuth constructs a http.Handler with all application routes bound.
 func WebAPI(log *logger.Logger, auth *auth.Auth, shutdown chan os.Signal) *web.App {
-	mux := web.NewApp(
+	app := web.NewApp(
 		shutdown, mid.Logger(log), mid.Errors(log), mid.Metrics(), mid.Panics(),
 	)
-	checkapi.Routes(mux, auth)
+	checkapi.Routes(app, auth)
+	authapi.Routes(app, auth)
 
-	return mux
+	return app
 }
