@@ -7,5 +7,5 @@ patches:
   - path: ./dev-auth-patch-service.yaml
 images:
   - name: auth-image
-    newName: localhost/ardanlabs/auth
+    newName: localhost/mrcruz117/auth
     newTag: 0.0.1

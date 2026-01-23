@@ -48,7 +48,7 @@ token:
 
 curl-auth2:
 	curl -il \
-	-H "Authorization: Bearer ${TOKEN}" "http://localhost:6000/authenticate"
+	-H "Authorization: Bearer ${TOKEN}" "http://localhost:6000/auth/authenticate"
 
 # ==============================================================================
 # Define dependencies
@@ -76,12 +76,20 @@ AUTH_IMAGE      := $(BASE_IMAGE_NAME)/$(AUTH_APP):$(VERSION)
 # ==============================================================================
 # Building containers
 
-build: sales
+build: sales auth
 
 sales:
 	docker build \
 		-f zarf/docker/dockerfile.sales \
 		-t $(SALES_IMAGE) \
+		--build-arg BUILD_REF=$(VERSION) \
+		--build-arg BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
+		.
+
+auth:
+	docker build \
+		-f zarf/docker/dockerfile.auth \
+		-t $(AUTH_IMAGE) \
 		--build-arg BUILD_REF=$(VERSION) \
 		--build-arg BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
 		.
@@ -123,6 +131,9 @@ dev-apply:
 
 dev-restart:
 	kubectl rollout restart deployment $(SALES_APP) --namespace=$(NAMESPACE)
+	
+dev-restart-auth:
+	kubectl rollout restart deployment $(AUTH_APP) --namespace=$(NAMESPACE)
 
 dev-update: build dev-load dev-restart
 
