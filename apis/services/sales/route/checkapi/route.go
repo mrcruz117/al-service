@@ -2,15 +2,17 @@ package checkapi
 
 import (
 	"github.com/mrcruz117/al-service/apis/services/api/mid"
+	"github.com/mrcruz117/al-service/app/api/authclient"
 	"github.com/mrcruz117/al-service/business/api/auth"
+	"github.com/mrcruz117/al-service/foundation/logger"
 	"github.com/mrcruz117/al-service/foundation/web"
 )
 
 // Routes adds specific routes for this group.
-func Routes(app *web.App, a *auth.Auth) {
+func Routes(app *web.App, log *logger.Logger, authClient *authclient.Client) {
 
-	authen := mid.Authorization(a)
-	authAdminOnly := mid.Authorize(a, auth.RuleAdminOnly)
+	authen := mid.Authenticate(log, authClient)
+	authAdminOnly := mid.Authorize(log, authClient, auth.RuleAdminOnly)
 
 	app.HandleFuncNoMiddleware("GET /liveness", liveness)
 	app.HandleFuncNoMiddleware("GET /readiness", readiness)
