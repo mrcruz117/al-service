@@ -6,10 +6,20 @@ import (
 	"math/rand"
 	"net/http"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/mrcruz117/al-service/app/api/errs"
 	"github.com/mrcruz117/al-service/foundation/web"
 )
 
+type api struct {
+	db *sqlx.DB
+}
+
+func newAPI(db *sqlx.DB) *api {
+	return &api{
+		db: db,
+	}
+}
 func liveness(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	status := struct {
 		Status string
