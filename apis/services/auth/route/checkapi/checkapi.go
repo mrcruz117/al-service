@@ -5,10 +5,21 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/mrcruz117/al-service/foundation/web"
 )
 
-func liveness(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+type api struct {
+	db *sqlx.DB
+}
+
+func newAPI(db *sqlx.DB) *api {
+	return &api{
+		db: db,
+	}
+}
+
+func (api *api) liveness(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	status := struct {
 		Status string
 	}{
@@ -19,7 +30,7 @@ func liveness(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 
 }
 
-func readiness(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+func (api *api) readiness(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	status := struct {
 		Status string
 	}{

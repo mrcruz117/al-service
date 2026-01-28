@@ -1,14 +1,15 @@
 package checkapi
 
 import (
-	"github.com/mrcruz117/al-service/business/api/auth"
+	"github.com/jmoiron/sqlx"
 	"github.com/mrcruz117/al-service/foundation/web"
 )
 
 // Routes adds specific routes for this group.
-func Routes(app *web.App, a *auth.Auth) {
+func Routes(app *web.App, db *sqlx.DB) {
 
-	app.HandleFuncNoMiddleware("GET /liveness", liveness)
-	app.HandleFuncNoMiddleware("GET /readiness", readiness)
+	api := newAPI(db)
 
+	app.HandleFuncNoMiddleware("GET /liveness", api.liveness)
+	app.HandleFuncNoMiddleware("GET /readiness", api.readiness)
 }

@@ -20,7 +20,8 @@ func newAPI(db *sqlx.DB) *api {
 		db: db,
 	}
 }
-func liveness(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+
+func (api *api) liveness(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	status := struct {
 		Status string
 	}{
@@ -31,7 +32,7 @@ func liveness(ctx context.Context, w http.ResponseWriter, r *http.Request) error
 
 }
 
-func readiness(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+func (api *api) readiness(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	status := struct {
 		Status string
 	}{
@@ -41,7 +42,7 @@ func readiness(ctx context.Context, w http.ResponseWriter, r *http.Request) erro
 	return web.Respond(ctx, w, status, http.StatusOK)
 }
 
-func testError(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+func (api *api) testError(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	if n := rand.Intn(100); n%2 == 0 {
 		return errs.Newf(errs.FailedPrecondition, "this message is trusted")
 	}
@@ -54,7 +55,7 @@ func testError(ctx context.Context, w http.ResponseWriter, r *http.Request) erro
 	return web.Respond(ctx, w, status, http.StatusOK)
 }
 
-func testPanic(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+func (api *api) testPanic(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	if n := rand.Intn(100); n%2 == 0 {
 		panic("PANIC!!!")
 	}

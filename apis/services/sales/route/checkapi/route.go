@@ -15,9 +15,11 @@ func Routes(app *web.App, log *logger.Logger, db *sqlx.DB, authClient *authclien
 	authen := mid.Authenticate(log, authClient)
 	authAdminOnly := mid.Authorize(log, authClient, auth.RuleAdminOnly)
 
-	app.HandleFuncNoMiddleware("GET /liveness", liveness)
-	app.HandleFuncNoMiddleware("GET /readiness", readiness)
-	app.HandleFunc("GET /testerror", testError)
-	app.HandleFunc("GET /testpanic", testPanic)
-	app.HandleFunc("GET /testauth", liveness, authen, authAdminOnly)
+	api := newAPI(db)
+
+	app.HandleFuncNoMiddleware("GET /liveness", api.liveness)
+	app.HandleFuncNoMiddleware("GET /readiness", api.readiness)
+	app.HandleFunc("GET /testerror", api.testError)
+	app.HandleFunc("GET /testpanic", api.testPanic)
+	app.HandleFunc("GET /testauth", api.liveness, authen, authAdminOnly)
 }
