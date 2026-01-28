@@ -19,7 +19,7 @@ version:
 curl-live:
 	curl -il -X GET http://localhost:3000/liveness
 
-# curl-ready:
+curl-ready:
 	curl -il -X GET http://localhost:3000/readiness
 
 curl-error:

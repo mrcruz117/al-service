@@ -10,12 +10,12 @@ import (
 )
 
 // Routes adds specific routes for this group.
-func Routes(app *web.App, log *logger.Logger, db *sqlx.DB, authClient *authclient.Client) {
+func Routes(build string, app *web.App, log *logger.Logger, db *sqlx.DB, authClient *authclient.Client) {
 
 	authen := mid.Authenticate(log, authClient)
 	authAdminOnly := mid.Authorize(log, authClient, auth.RuleAdminOnly)
 
-	api := newAPI(db)
+	api := newAPI(build, log, db)
 
 	app.HandleFuncNoMiddleware("GET /liveness", api.liveness)
 	app.HandleFuncNoMiddleware("GET /readiness", api.readiness)

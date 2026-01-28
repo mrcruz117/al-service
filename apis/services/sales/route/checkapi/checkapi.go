@@ -5,41 +5,83 @@ import (
 	"context"
 	"math/rand"
 	"net/http"
+	"os"
+	"runtime"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/mrcruz117/al-service/app/api/errs"
+	"github.com/mrcruz117/al-service/business/data/sqldb"
+	"github.com/mrcruz117/al-service/foundation/logger"
 	"github.com/mrcruz117/al-service/foundation/web"
 )
 
 type api struct {
-	db *sqlx.DB
+	build string
+	log   *logger.Logger
+	db    *sqlx.DB
 }
 
-func newAPI(db *sqlx.DB) *api {
+func newAPI(build string, log *logger.Logger, db *sqlx.DB) *api {
 	return &api{
-		db: db,
+		build: build,
+		log:   log,
+		db:    db,
 	}
-}
-
-func (api *api) liveness(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	status := struct {
-		Status string
-	}{
-		Status: "OK",
-	}
-
-	return web.Respond(ctx, w, status, http.StatusOK)
-
 }
 
 func (api *api) readiness(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	status := struct {
-		Status string
-	}{
-		Status: "OK",
+	ctx, cancel := context.WithTimeout(ctx, time.Second)
+	defer cancel()
+
+	status := "ok"
+	statusCode := http.StatusOK
+
+	if err := sqldb.StatusCheck(ctx, api.db); err != nil {
+		status = "db not ready"
+		statusCode = http.StatusInternalServerError
+		api.log.Info(ctx, "readiness failure", "status", status)
 	}
 
-	return web.Respond(ctx, w, status, http.StatusOK)
+	data := struct {
+		Status string `json:"status"`
+	}{
+		Status: status,
+	}
+
+	return web.Respond(ctx, w, data, statusCode)
+}
+
+func (api *api) liveness(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	host, err := os.Hostname()
+	if err != nil {
+		host = "unavailable"
+	}
+
+	data := struct {
+		Status     string `json:"status,omitempty"`
+		Build      string `json:"build,omitempty"`
+		Host       string `json:"host,omitempty"`
+		Name       string `json:"name,omitempty"`
+		PodIP      string `json:"podIP,omitempty"`
+		Node       string `json:"node,omitempty"`
+		Namespace  string `json:"namespace,omitempty"`
+		GOMAXPROCS int    `json:"GOMAXPROCS,omitempty"`
+	}{
+		Status:     "up",
+		Build:      api.build,
+		Host:       host,
+		Name:       os.Getenv("KUBERNETES_NAME"),
+		PodIP:      os.Getenv("KUBERNETES_POD_IP"),
+		Node:       os.Getenv("KUBERNETES_NODE_NAME"),
+		Namespace:  os.Getenv("KUBERNETES_NAMESPACE"),
+		GOMAXPROCS: runtime.GOMAXPROCS(0),
+	}
+
+	// This handler provides a free timer loop.
+
+	return web.Respond(ctx, w, data, http.StatusOK)
+
 }
 
 func (api *api) testError(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
