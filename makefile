@@ -165,6 +165,12 @@ dev-describe-sales:
 	kubectl describe pod --namespace=$(NAMESPACE) -l app=$(SALES_APP)
 
 # ==============================================================================
+# Administration
+
+pgcli:
+	pgcli postgresql://postgres:postgres@localhost
+	
+# ==============================================================================
 # Metrics and Tracing
 
 metrics:
