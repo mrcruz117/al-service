@@ -3,7 +3,7 @@
 package mux
 
 import (
-	"os"
+	"context"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/mrcruz117/al-service/apis/services/api/mid"
@@ -15,10 +15,14 @@ import (
 )
 
 // WebAPIAuth constructs a http.Handler with all application routes bound.
-func WebAPI(build string, log *logger.Logger, db *sqlx.DB, auth *auth.Auth, shutdown chan os.Signal) *web.App {
-	app := web.NewApp(
-		shutdown, mid.Logger(log), mid.Errors(log), mid.Metrics(), mid.Panics(),
-	)
+func WebAPI(build string, log *logger.Logger, db *sqlx.DB, auth *auth.Auth) *web.App {
+
+	logger := func(ctx context.Context, msg string, v ...any) {
+		log.Info(ctx, msg, v...)
+	}
+
+	app := web.NewApp(logger, mid.Logger(log), mid.Errors(log), mid.Metrics(), mid.Panics())
+
 	checkapi.Routes(build, app, log, db)
 	authapi.Routes(app, auth)
 
