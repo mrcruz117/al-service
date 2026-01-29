@@ -15,14 +15,49 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/mrcruz117/al-service/business/data/migrate"
+	"github.com/mrcruz117/al-service/business/data/sqldb"
 	"github.com/open-policy-agent/opa/rego"
 )
 
 func main() {
-	err := GenToken()
+	err := Migrate()
 	if err != nil {
 		log.Fatalln(err)
 	}
+}
+
+// Migrate creates the schema in the database.
+func Migrate() error {
+	dbConfig := sqldb.Config{
+		User:         "postgres",
+		Password:     "postgres",
+		HostPort:     "database-service.sales-system.svc.cluster.local",
+		Name:         "postgres",
+		MaxIdleConns: 2,
+		MaxOpenConns: 0,
+		DisableTLS:   true,
+	}
+	db, err := sqldb.Open(dbConfig)
+	if err != nil {
+		return fmt.Errorf("connect database: %w", err)
+	}
+	defer db.Close()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	if err := migrate.Migrate(ctx, db); err != nil {
+		return fmt.Errorf("migrating database: %w", err)
+	}
+	fmt.Println("migrations complete")
+
+	if err := migrate.Seed(ctx, db); err != nil {
+		return fmt.Errorf("seeding database: %w", err)
+	}
+
+	fmt.Println("seeding complete")
+	return nil
 }
 
 func GenToken() error {

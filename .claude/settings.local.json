@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(kubectl describe:*)",
+      "Bash(kind get:*)",
+      "Bash(wsl bash -c \"kubectl describe pod --namespace=sales-system -l app=sales\")"
+    ]
+  }
+}
