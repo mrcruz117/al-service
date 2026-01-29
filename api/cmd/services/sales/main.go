@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/ardanlabs/conf/v3"
-	"github.com/mrcruz117/al-service/api/cmd/services/auth/build/all"
+	"github.com/mrcruz117/al-service/api/cmd/services/sales/build/all"
 	"github.com/mrcruz117/al-service/api/http/api/debug"
 	"github.com/mrcruz117/al-service/api/http/api/mux"
 	"github.com/mrcruz117/al-service/app/api/authclient"

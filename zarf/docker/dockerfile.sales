@@ -16,11 +16,11 @@ ARG BUILD_REF
 COPY . /al-service
 
 # Build the admin binary.
-WORKDIR /al-service/apis/tooling/admin
+WORKDIR /al-service/api/cmd/tooling/admin
 RUN go build -ldflags "-X main.build=${BUILD_REF}"
 
 # Build the service binary.
-WORKDIR /al-service/apis/services/sales
+WORKDIR /al-service/api/cmd/services/sales
 RUN go build -ldflags "-X main.build=${BUILD_REF}"
 
 
@@ -30,9 +30,8 @@ ARG BUILD_DATE
 ARG BUILD_REF
 RUN addgroup -g 1000 -S sales && \
   adduser -u 1000 -h /al-service -G sales -S sales
-COPY --from=build_sales --chown=sales:sales /al-service/zarf/keys/. /al-service/zarf/keys/.
-COPY --from=build_sales --chown=sales:sales /al-service/apis/tooling/admin/admin /al-service/admin
-COPY --from=build_sales --chown=sales:sales /al-service/apis/services/sales/sales /al-service/sales
+COPY --from=build_sales --chown=sales:sales /al-service/api/cmd/tooling/admin/admin /al-service/admin
+COPY --from=build_sales --chown=sales:sales /al-service/api/cmd/services/sales/sales /al-service/sales
 WORKDIR /al-service
 USER sales
 CMD ["./sales"]
@@ -40,6 +39,6 @@ CMD ["./sales"]
 LABEL org.opencontainers.image.created="${BUILD_DATE}" \
   org.opencontainers.image.title="sales-api" \
   org.opencontainers.image.authors="Michael Cruz" \
-  org.opencontainers.image.source="https://github.com/mrcruz117/al-service/tree/master/apis/services/sales" \
+  org.opencontainers.image.source="https://github.com/ardanlabs/service/tree/master/a/services/sales" \
   org.opencontainers.image.revision="${BUILD_REF}" \
   org.opencontainers.image.vendor="Michael Cruz"

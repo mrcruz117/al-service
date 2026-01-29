@@ -8,7 +8,7 @@ COPY . /al-service
 
 # Build the service binary. We are doing this last since this will be different
 # every time we run through this process.
-WORKDIR /al-service/apis/services/auth
+WORKDIR /al-service/api/cmd/services/auth
 RUN go build -ldflags "-X main.build=${BUILD_REF}"
 
 
@@ -19,7 +19,7 @@ ARG BUILD_REF
 RUN addgroup -g 1000 -S auth && \
     adduser -u 1000 -h /al-service -G auth -S auth
 COPY --from=build_auth --chown=auth:auth /al-service/zarf/keys/. /al-service/zarf/keys/.
-COPY --from=build_auth --chown=auth:auth /al-service/apis/services/auth/auth /al-service/auth
+COPY --from=build_auth --chown=auth:auth /al-service/api/cmd/services/auth/auth /al-service/auth
 WORKDIR /al-service
 USER auth
 CMD ["./auth"]
@@ -27,6 +27,6 @@ CMD ["./auth"]
 LABEL org.opencontainers.image.created="${BUILD_DATE}" \
     org.opencontainers.image.title="auth" \
     org.opencontainers.image.authors="Michael Cruz" \
-    org.opencontainers.image.source="https://github.com/mrcruz117/al-service/tree/master/apis/services/auth" \
+    org.opencontainers.image.source="https://github.com/ardanlabs/service/tree/master/a/services/auth" \
     org.opencontainers.image.revision="${BUILD_REF}" \
     org.opencontainers.image.vendor="Michael Cruz"
