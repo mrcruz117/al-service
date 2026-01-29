@@ -3,14 +3,12 @@ package checkapi
 
 import (
 	"context"
-	"math/rand"
 	"net/http"
 	"os"
 	"runtime"
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/mrcruz117/al-service/app/api/errs"
 	"github.com/mrcruz117/al-service/business/api/sqldb"
 	"github.com/mrcruz117/al-service/foundation/logger"
 	"github.com/mrcruz117/al-service/foundation/web"
@@ -25,8 +23,8 @@ type api struct {
 func newAPI(build string, log *logger.Logger, db *sqlx.DB) *api {
 	return &api{
 		build: build,
-		log:   log,
 		db:    db,
+		log:   log,
 	}
 }
 
@@ -82,30 +80,4 @@ func (api *api) liveness(ctx context.Context, w http.ResponseWriter, r *http.Req
 
 	return web.Respond(ctx, w, data, http.StatusOK)
 
-}
-
-func (api *api) testError(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	if n := rand.Intn(100); n%2 == 0 {
-		return errs.Newf(errs.FailedPrecondition, "this message is trusted")
-	}
-	status := struct {
-		Status string
-	}{
-		Status: "OK",
-	}
-
-	return web.Respond(ctx, w, status, http.StatusOK)
-}
-
-func (api *api) testPanic(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
-	if n := rand.Intn(100); n%2 == 0 {
-		panic("PANIC!!!")
-	}
-
-	status := struct {
-		Status string
-	}{
-		Status: "OK",
-	}
-	return web.Respond(ctx, w, status, http.StatusOK)
 }

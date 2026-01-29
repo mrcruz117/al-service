@@ -13,8 +13,9 @@ import (
 	"time"
 
 	"github.com/ardanlabs/conf/v3"
-	"github.com/mrcruz117/al-service/apis/services/api/debug"
-	"github.com/mrcruz117/al-service/apis/services/sales/mux"
+	"github.com/mrcruz117/al-service/api/cmd/services/auth/build/all"
+	"github.com/mrcruz117/al-service/api/http/api/debug"
+	"github.com/mrcruz117/al-service/api/http/api/mux"
 	"github.com/mrcruz117/al-service/app/api/authclient"
 	"github.com/mrcruz117/al-service/business/api/sqldb"
 	"github.com/mrcruz117/al-service/foundation/logger"
@@ -38,7 +39,7 @@ func main() {
 
 	log = logger.NewWithEvents(os.Stdout, logger.LevelInfo, "SALES", traceIDFn, events)
 
-	// ------------------------------------------------------------
+	// -------------------------------------------------------------------------
 
 	ctx := context.Background()
 
@@ -46,15 +47,16 @@ func main() {
 		log.Error(ctx, "startup", "msg", err)
 		os.Exit(1)
 	}
-
 }
 
 func run(ctx context.Context, log *logger.Logger) error {
-	// ------------------------------------------------------------
+
+	// -------------------------------------------------------------------------
 	// GOMAXPROCS
 
 	log.Info(ctx, "startup", "GOMAXPROCS", runtime.GOMAXPROCS(0))
 
+	// -------------------------------------------------------------------------
 	// Configuration
 
 	cfg := struct {
@@ -96,7 +98,8 @@ func run(ctx context.Context, log *logger.Logger) error {
 		}
 		return fmt.Errorf("parsing config: %w", err)
 	}
-	// --------------------------------------------------------------
+
+	// -------------------------------------------------------------------------
 	// App Starting
 
 	log.Info(ctx, "starting service", "version", cfg.Build)
@@ -129,6 +132,7 @@ func run(ctx context.Context, log *logger.Logger) error {
 	}
 
 	defer db.Close()
+
 	// -------------------------------------------------------------------------
 	// Initialize authentication support
 
@@ -137,10 +141,9 @@ func run(ctx context.Context, log *logger.Logger) error {
 	logFunc := func(ctx context.Context, msg string, v ...any) {
 		log.Info(ctx, msg, v...)
 	}
-
 	authClient := authclient.New(cfg.Auth.Host, logFunc)
 
-	// --------------------------------------------------------------
+	// -------------------------------------------------------------------------
 	// Start Debug Service
 
 	go func() {
@@ -151,7 +154,7 @@ func run(ctx context.Context, log *logger.Logger) error {
 		}
 	}()
 
-	// --------------------------------------------------------------
+	// -------------------------------------------------------------------------
 	// Start API Service
 
 	log.Info(ctx, "startup", "status", "initializing V1 API support")
@@ -159,9 +162,16 @@ func run(ctx context.Context, log *logger.Logger) error {
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM)
 
+	cfgMux := mux.Config{
+		Build:      build,
+		Log:        log,
+		AuthClient: authClient,
+		DB:         db,
+	}
+
 	api := http.Server{
 		Addr:         cfg.Web.APIHost,
-		Handler:      mux.WebAPI(build, log, db, authClient),
+		Handler:      mux.WebAPI(cfgMux, all.Routes()),
 		ReadTimeout:  cfg.Web.ReadTimeout,
 		WriteTimeout: cfg.Web.WriteTimeout,
 		IdleTimeout:  cfg.Web.IdleTimeout,
@@ -195,5 +205,6 @@ func run(ctx context.Context, log *logger.Logger) error {
 			return fmt.Errorf("could not stop server gracefully: %w", err)
 		}
 	}
+
 	return nil
 }

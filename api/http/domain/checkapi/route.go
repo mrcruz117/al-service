@@ -6,10 +6,16 @@ import (
 	"github.com/mrcruz117/al-service/foundation/web"
 )
 
-// Routes adds specific routes for this group.
-func Routes(build string, app *web.App, log *logger.Logger, db *sqlx.DB) {
+// Config contains all the mandatory systems required by handlers.
+type Config struct {
+	Build string
+	Log   *logger.Logger
+	DB    *sqlx.DB
+}
 
-	api := newAPI(build, log, db)
+// Routes adds specific routes for this group.
+func Routes(app *web.App, cfg Config) {
+	api := newAPI(cfg.Build, cfg.Log, cfg.DB)
 
 	app.HandleFuncNoMiddleware("GET /liveness", api.liveness)
 	app.HandleFuncNoMiddleware("GET /readiness", api.readiness)

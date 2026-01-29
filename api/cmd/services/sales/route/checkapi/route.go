@@ -2,7 +2,7 @@ package checkapi
 
 import (
 	"github.com/jmoiron/sqlx"
-	"github.com/mrcruz117/al-service/apis/services/api/mid"
+	"github.com/mrcruz117/al-service/api/http/api/mid"
 	"github.com/mrcruz117/al-service/app/api/auth"
 	"github.com/mrcruz117/al-service/app/api/authclient"
 	"github.com/mrcruz117/al-service/foundation/logger"

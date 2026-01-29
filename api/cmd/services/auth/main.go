@@ -13,8 +13,9 @@ import (
 	"time"
 
 	"github.com/ardanlabs/conf/v3"
-	"github.com/mrcruz117/al-service/apis/services/api/debug"
-	"github.com/mrcruz117/al-service/apis/services/auth/mux"
+	"github.com/mrcruz117/al-service/api/cmd/services/auth/build/all"
+	"github.com/mrcruz117/al-service/api/http/api/debug"
+	"github.com/mrcruz117/al-service/api/http/api/mux"
 	"github.com/mrcruz117/al-service/app/api/auth"
 	"github.com/mrcruz117/al-service/business/api/sqldb"
 	"github.com/mrcruz117/al-service/foundation/keystore"
@@ -55,6 +56,9 @@ func run(ctx context.Context, log *logger.Logger) error {
 	// GOMAXPROCS
 
 	log.Info(ctx, "startup", "GOMAXPROCS", runtime.GOMAXPROCS(0))
+
+	// -------------------------------------------------------------------------
+	// Configuration
 
 	cfg := struct {
 		conf.Version
@@ -150,7 +154,7 @@ func run(ctx context.Context, log *logger.Logger) error {
 		KeyLookup: ks,
 	}
 
-	auth, err := auth.New(authCfg)
+	ath, err := auth.New(authCfg)
 	if err != nil {
 		return fmt.Errorf("constructing auth: %w", err)
 	}
@@ -174,14 +178,22 @@ func run(ctx context.Context, log *logger.Logger) error {
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM)
 
+	cfgMux := mux.Config{
+		Build: build,
+		Log:   log,
+		Auth:  ath,
+		DB:    db,
+	}
+
 	api := http.Server{
 		Addr:         cfg.Web.APIHost,
-		Handler:      mux.WebAPI(build, log, db, auth),
+		Handler:      mux.WebAPI(cfgMux, all.Routes()),
 		ReadTimeout:  cfg.Web.ReadTimeout,
 		WriteTimeout: cfg.Web.WriteTimeout,
 		IdleTimeout:  cfg.Web.IdleTimeout,
 		ErrorLog:     logger.NewStdLogger(log, logger.LevelError),
 	}
+
 	serverErrors := make(chan error, 1)
 
 	go func() {
