@@ -2,7 +2,7 @@ package authapi
 
 import (
 	"github.com/mrcruz117/al-service/apis/services/api/mid"
-	"github.com/mrcruz117/al-service/business/api/auth"
+	"github.com/mrcruz117/al-service/app/api/auth"
 	"github.com/mrcruz117/al-service/foundation/web"
 )
 

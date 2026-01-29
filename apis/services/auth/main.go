@@ -15,7 +15,7 @@ import (
 	"github.com/ardanlabs/conf/v3"
 	"github.com/mrcruz117/al-service/apis/services/api/debug"
 	"github.com/mrcruz117/al-service/apis/services/auth/mux"
-	"github.com/mrcruz117/al-service/business/api/auth"
+	"github.com/mrcruz117/al-service/app/api/auth"
 	"github.com/mrcruz117/al-service/business/api/sqldb"
 	"github.com/mrcruz117/al-service/foundation/keystore"
 	"github.com/mrcruz117/al-service/foundation/logger"

@@ -10,7 +10,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
-	"github.com/mrcruz117/al-service/business/api/auth"
+	"github.com/mrcruz117/al-service/app/api/auth"
 	"github.com/mrcruz117/al-service/foundation/logger"
 )
 

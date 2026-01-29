@@ -5,10 +5,10 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/mrcruz117/al-service/app/api/auth"
 	"github.com/mrcruz117/al-service/app/api/authclient"
 	"github.com/mrcruz117/al-service/app/api/errs"
 	"github.com/mrcruz117/al-service/app/api/mid"
-	"github.com/mrcruz117/al-service/business/api/auth"
 	"github.com/mrcruz117/al-service/foundation/web"
 )
 

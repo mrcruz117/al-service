@@ -2,7 +2,7 @@
 package authapi
 
 import (
-	"github.com/mrcruz117/al-service/business/api/auth"
+	"github.com/mrcruz117/al-service/app/api/auth"
 )
 
 type api struct {
