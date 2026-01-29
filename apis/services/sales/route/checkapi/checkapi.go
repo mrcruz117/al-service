@@ -11,7 +11,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/mrcruz117/al-service/app/api/errs"
-	"github.com/mrcruz117/al-service/business/data/sqldb"
+	"github.com/mrcruz117/al-service/business/api/sqldb"
 	"github.com/mrcruz117/al-service/foundation/logger"
 	"github.com/mrcruz117/al-service/foundation/web"
 )

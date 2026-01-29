@@ -15,8 +15,8 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/mrcruz117/al-service/business/data/migrate"
-	"github.com/mrcruz117/al-service/business/data/sqldb"
+	"github.com/mrcruz117/al-service/business/api/migrate"
+	"github.com/mrcruz117/al-service/business/api/sqldb"
 	"github.com/open-policy-agent/opa/rego"
 )
 

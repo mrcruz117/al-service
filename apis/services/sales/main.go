@@ -16,7 +16,7 @@ import (
 	"github.com/mrcruz117/al-service/apis/services/api/debug"
 	"github.com/mrcruz117/al-service/apis/services/sales/mux"
 	"github.com/mrcruz117/al-service/app/api/authclient"
-	"github.com/mrcruz117/al-service/business/data/sqldb"
+	"github.com/mrcruz117/al-service/business/api/sqldb"
 	"github.com/mrcruz117/al-service/foundation/logger"
 	"github.com/mrcruz117/al-service/foundation/web"
 )

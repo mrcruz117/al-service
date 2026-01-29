@@ -12,7 +12,7 @@ import (
 	"github.com/ardanlabs/darwin/v3/dialects/postgres"
 	"github.com/ardanlabs/darwin/v3/drivers/generic"
 	"github.com/jmoiron/sqlx"
-	"github.com/mrcruz117/al-service/business/data/sqldb"
+	"github.com/mrcruz117/al-service/business/api/sqldb"
 )
 
 var (
